@@ -1,5 +1,5 @@
 ---
-name: china-fund-data
+name: cifang-fund-data
 description: 获取A股场内基金（ETF、LOF）的历史行情、实时行情和收益率排行数据。使用次方量化API（需要API Key）获取基金列表、历史行情、实时行情和场内基金排行数据。当用户需要获取中国场内基金数据、分析ETF/LOF表现、查询基金历史价格、实时行情或进行金融数据分析时，请使用此技能。
 ---
 
@@ -9,7 +9,7 @@ description: 获取A股场内基金（ETF、LOF）的历史行情、实时行情
 
 ## 快速开始
 
-1. **获取API Key**：访问[次方量化平台](https://www.cifangquant.com)获取API Key
+1. **获取API Key**：访问[次方量化平台](https://www.cifangquant.com/tool/data-api)获取API Key
 2. **设置环境变量**：将API Key设置为环境变量 `CIFANG_API_KEY`
 3. **使用技能**：请求基金数据时，技能会自动使用API Key
 
