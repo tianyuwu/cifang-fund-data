@@ -93,27 +93,126 @@
 | 5 | number | 涨跌幅 | 百分比数值，如1.23表示1.23% |
 | 6 | number | 成交量 | 当日成交量 |
 
-## 策略接口（可选）
+### 3. 实时行情接口
+获取场内基金实时行情快照，数据延迟通常不超过2分钟。
 
-### 3. 策略列表接口
-获取自动化交易策略列表。
-
-**端点**: `GET /api/trading/list`
+**端点**: `GET /api/fund/spot`
 
 **参数**:
 | 参数名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
-| `account` | string | 否 | 按资金账号筛选 |
+| `symbol` | string | 否 | 基金代码，多个以英文逗号分隔；不传则返回全量实时行情 |
 
-### 4. 策略信号接口
-获取指定策略的当日交易信号。
+**响应示例**:
+```json
+{
+  "161226": {
+    "code": "161226",
+    "name": "国投白银LOF",
+    "price": 2.73,
+    "change": -4.177,
+    "change_amount": -0.119,
+    "volume": 133505376,
+    "amount": 366382936,
+    "open": 2.789,
+    "high": 2.792,
+    "low": 2.716,
+    "close_yesterday": 2.849,
+    "fund_type": "LOF",
+    "trade_date": "2026-04-23T00:00:00Z",
+    "data_time": "13:32:33"
+  }
+}
+```
 
-**端点**: `GET /api/trading/get_strategy_signal`
+**字段说明**:
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `code` | string | 基金代码 |
+| `name` | string | 基金名称 |
+| `price` | number | 最新价 |
+| `change` | number | 涨跌幅 (%) |
+| `change_amount` | number | 涨跌额 |
+| `volume` | number | 成交量 |
+| `amount` | number | 成交额 |
+| `open` | number | 开盘价 |
+| `high` | number | 最高价 |
+| `low` | number | 最低价 |
+| `close_yesterday` | number | 昨收价 |
+| `fund_type` | string | 基金类型（ETF / LOF） |
+| `trade_date` | string | 交易日期（ISO 8601） |
+| `data_time` | string | 行情时间（HH:MM:SS） |
+
+### 4. 场内基金排行接口
+获取场内基金按不同时间区间的收益率排行榜。
+
+**端点**: `GET /api/fund/exchange_rank`
 
 **参数**:
 | 参数名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
-| `strategy_id` | integer | 是 | 自动化交易ID |
+| `sort_by` | string | 否 | 排序字段，见下表，默认 `1yzf` |
+| `sort_order` | string | 否 | 排序方向：`desc`(降序) / `asc`(升序)，默认 `desc` |
+| `limit` | integer | 否 | 返回数量上限，默认 30000，最大 30000 |
+
+**`sort_by` 可选值**:
+| 值 | 含义 |
+|----|------|
+| `zzf` | 近1周 |
+| `1yzf` | 近1月 |
+| `3yzf` | 近3月 |
+| `6yzf` | 近6月 |
+| `1nzf` | 近1年 |
+| `2nzf` | 近2年 |
+| `3nzf` | 近3年 |
+| `jnzf` | 今年来 |
+| `lnzf` | 成立以来 |
+
+**响应示例**:
+```json
+[
+  {
+    "rank": 1,
+    "fund_code": "515880",
+    "fund_name": "通信ETF国泰",
+    "fund_type": "指数型-股票",
+    "date": "2026-04-22",
+    "unit_nav": 1.4105,
+    "accumulated_nav": 4.2315,
+    "week_1": 15.52,
+    "month_1": 30.87,
+    "month_3": 33.43,
+    "month_6": 58.25,
+    "year_1": 270.6,
+    "year_2": 282.98,
+    "year_3": 279.1,
+    "ytd": 37.28,
+    "since_inception": 323.19,
+    "inception_date": "2019-08-16"
+  }
+]
+```
+
+**字段说明**:
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `rank` | integer | 排名 |
+| `fund_code` | string | 基金代码 |
+| `fund_name` | string | 基金名称 |
+| `fund_type` | string | 基金类型 |
+| `date` | string | 净值日期 |
+| `unit_nav` | number | 单位净值 |
+| `accumulated_nav` | number | 累计净值 |
+| `week_1` | number | 近1周收益率 (%) |
+| `month_1` | number | 近1月收益率 (%) |
+| `month_3` | number | 近3月收益率 (%) |
+| `month_6` | number | 近6月收益率 (%) |
+| `year_1` | number | 近1年收益率 (%) |
+| `year_2` | number | 近2年收益率 (%) |
+| `year_3` | number | 近3年收益率 (%) |
+| `ytd` | number | 今年来收益率 (%) |
+| `since_inception` | number | 成立以来收益率 (%) |
+| `inception_date` | string | 成立日期 |
 
 ## 使用示例
 
@@ -184,10 +283,10 @@ response = requests.get(
 A: 访问 https://www.cifangquant.com 注册账号，在个人中心获取API Key。
 
 ### Q2: 支持实时行情吗？
-A: 当前API主要提供历史行情数据。实时行情可能需要其他数据源。
+A: 支持。使用 `/api/fund/spot` 接口获取实时行情快照，数据延迟通常不超过2分钟。
 
 ### Q3: 数据来源是什么？
-A: 数据来源于东方财富等公开数据源，经过清洗和整理。
+A: 数据来源于东方财富，新浪财经等公开数据源，经过清洗和整理。
 
 ### Q4: 请求频率有限制吗？
 A: 文档未明确说明，但建议合理控制请求频率，避免被封禁。
@@ -197,7 +296,7 @@ A: 主要支持A股场内交易基金，包括ETF、LOF等。
 
 ## 更新日志
 
-### V1.0 (2024-01-01)
+### V1.0 (2026-04-23)
 - 初始版本发布
 - 支持基金列表查询
 - 支持历史行情数据获取
