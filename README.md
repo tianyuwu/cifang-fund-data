@@ -118,3 +118,8 @@ API 返回数组格式，各索引含义如下：
 | 400 | 参数格式错误 | 检查日期格式（YYYY-MM-DD）和代码格式 |
 | 404 | 基金代码不存在 | 先用列表接口确认代码 |
 | 429 | 请求频率超限 | 降低请求频率 |
+
+## 许可证
+
+本项目采用 [MIT No Attribution License (MIT-0)](https://spdx.org/licenses/MIT-0.html)。
+完整协议文本见 [`LICENSE`](LICENSE) 文件。
